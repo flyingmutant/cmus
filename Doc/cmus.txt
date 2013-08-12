@@ -1076,6 +1076,7 @@ Special Keys:
 	    %{part}		@br
 	    %{subtitle}		@br
 	    %{media}		@br
+	    %{bpm}		@br
 	%=
 		start align right (use at most once)
 	%%
@@ -1107,7 +1108,7 @@ sort keys:
 	artist, album, title, tracknumber, discnumber, date, originaldate,
 	genre, comment, albumartist, filename, filemtime, bitrate, codec,
 	media, codec_profile, rg_track_gain, rg_track_peak, rg_album_gain,
-	rg_album_peak
+	rg_album_peak, bpm
 
 Note: Adding a '-' in front of the key will sort in reverse order
 
@@ -1252,7 +1253,7 @@ Comparators: none
 
 @li long
 *discnumber*, *tracknumber*, *date* (year), *originaldate* (year), *duration*
-(seconds), *bitrate*
+(seconds), *bitrate*, *bpm*
 @br
 Comparators: *<*, *<=*, *=*, *>=*, *>*, *!=*
 

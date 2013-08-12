@@ -435,6 +435,7 @@ static const struct {
 	{ "filename",	EXPR_STR	},
 	{ "genre",	EXPR_STR	},
 	{ "media",	EXPR_STR	},
+	{ "bpm",	EXPR_INT	},
 	{ "originaldate",EXPR_INT	},
 	{ "stream",	EXPR_BOOL	},
 	{ "tag",	EXPR_BOOL	},
