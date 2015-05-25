@@ -17,6 +17,7 @@
  */
 
 #include "lib.h"
+#include "cache.h"
 #include "editable.h"
 #include "track_info.h"
 #include "options.h"
@@ -651,30 +652,17 @@ static int ti_cmp(const void *a, const void *b)
 
 static int do_lib_for_each(int (*cb)(void *data, struct track_info *ti), void *data, int filtered)
 {
-	int i, rc = 0, count = 0, size = 1024;
 	struct track_info **tis;
+	int count, rc = 0;
 
-	tis = xnew(struct track_info *, size);
-
-	/* collect all track_infos */
-	for (i = 0; i < FH_SIZE; i++) {
-		struct fh_entry *e;
-
-		e = ti_hash[i];
-		while (e) {
-			if (count == size) {
-				size *= 2;
-				tis = xrenew(struct track_info *, tis, size);
-			}
-			if (!filtered || !filter || expr_eval(filter, e->ti))
-				tis[count++] = e->ti;
-			e = e->next;
-		}
-	}
+	cache_lock();
+	tis = cache_get_tis(0, &count, filtered ? is_filtered : NULL);
+	cache_unlock();
 
 	/* sort to speed up playlist loading */
 	qsort(tis, count, sizeof(struct track_info *), ti_cmp);
-	for (i = 0; i < count; i++) {
+
+	for (int i = 0; i < count; i++) {
 		rc = cb(data, tis[i]);
 		if (rc)
 			break;

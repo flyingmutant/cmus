@@ -284,22 +284,29 @@ static int ti_filename_cmp(const void *a, const void *b)
 	return strcmp(ai->filename, bi->filename);
 }
 
-static struct track_info **get_track_infos(void)
+struct track_info **cache_get_tis(int sort, int *count, int (*is_filtered)(struct track_info *))
 {
 	struct track_info **tis;
-	int i, c;
+	int i, cur;
 
 	tis = xnew(struct track_info *, total);
-	c = 0;
+	cur = 0;
 	for (i = 0; i < HASH_SIZE; i++) {
 		struct track_info *ti = hash_table[i];
 
 		while (ti) {
-			tis[c++] = ti;
+			if (!is_filtered || !is_filtered(ti))
+				tis[cur++] = ti;
 			ti = ti->next;
 		}
 	}
-	qsort(tis, total, sizeof(struct track_info *), ti_filename_cmp);
+
+	if (sort)
+		qsort(tis, total, sizeof(struct track_info *), ti_filename_cmp);
+
+	if (count)
+		*count = cur;
+
 	return tis;
 }
 
@@ -380,7 +387,7 @@ int cache_close(void)
 		return -1;
 	}
 
-	tis = get_track_infos();
+	tis = cache_get_tis(1, NULL, NULL);
 
 	gbuf_grow(&buf, 64 * 1024 - 1);
 	gbuf_add_bytes(&buf, cache_header, sizeof(cache_header));
@@ -464,7 +471,7 @@ struct track_info *cache_fetch_ti(const char *filename, int force)
 
 struct track_info **cache_refresh(int *count, int force)
 {
-	struct track_info **tis = get_track_infos();
+	struct track_info **tis = cache_get_tis(1, NULL, NULL);
 	int i, n = total;
 
 	for (i = 0; i < n; i++) {
