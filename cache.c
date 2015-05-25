@@ -433,6 +433,7 @@ struct track_info *cache_fetch_ti(const char *filename, int force)
 
 	ti = lookup_cache_entry(filename, hash);
 	if (ti) {
+		// check if skip_track_info is unset, but we still have non-loaded track info
 		if ((!skip_track_info && ti->duration == 0 && !is_http_url(filename)) || force){
 			do_cache_remove_ti(ti, hash);
 			ti = NULL;
@@ -440,6 +441,7 @@ struct track_info *cache_fetch_ti(const char *filename, int force)
 		}
 	}
 	if (!ti) {
+		// try our best to not load the actual track info
 		if (skip_track_info && !reload && !force) {
 			struct growing_keyvals c = {NULL, 0, 0};
 
