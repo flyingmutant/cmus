@@ -30,6 +30,7 @@ extern pthread_mutex_t cache_mutex;
 int cache_init(void);
 int cache_close(void);
 int cache_has_ti(const char *filename);
+void cache_for_each(void (*cb)(void *data, struct track_info *), void *data);
 struct track_info **cache_get_tis(int sort, int *count, int (*is_filtered)(struct track_info *));
 struct track_info *cache_fetch_ti(const char *filename, int force);
 void cache_remove_ti(struct track_info *ti);

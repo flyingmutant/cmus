@@ -401,21 +401,10 @@ struct track_info *sorted_activate_selected(void)
 	return lib_set_track(sorted_get_selected());
 }
 
-static void hash_add_to_views(void)
+static void views_add_filtered_track_cb(void *data, struct track_info *ti)
 {
-	int i;
-	for (i = 0; i < FH_SIZE; i++) {
-		struct fh_entry *e;
-
-		e = ti_hash[i];
-		while (e) {
-			struct track_info *ti = e->ti;
-
-			if (!is_filtered(ti))
-				views_add_track(ti);
-			e = e->next;
-		}
-	}
+	if (!is_filtered(ti))
+		views_add_track(ti);
 }
 
 struct tree_track *lib_find_track(struct track_info *ti)
@@ -470,7 +459,10 @@ static void do_lib_filter(int clear_before)
 	remove_from_hash = 0;
 	if (clear_before) {
 		editable_clear(&lib_editable);
-		hash_add_to_views();
+
+		cache_lock();
+		cache_for_each(views_add_filtered_track_cb, NULL);
+		cache_unlock();
 	} else
 		editable_remove_matching_tracks(&lib_editable, is_filtered_cb, NULL);
 	remove_from_hash = 1;

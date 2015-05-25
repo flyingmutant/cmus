@@ -289,6 +289,18 @@ static int ti_filename_cmp(const void *a, const void *b)
 	return strcmp(ai->filename, bi->filename);
 }
 
+void cache_for_each(void (*cb)(void *data, struct track_info *), void *data)
+{
+	for (int i = 0; i < HASH_SIZE; i++) {
+		struct track_info *ti = hash_table[i];
+
+		while (ti) {
+			cb(data, ti);
+			ti = ti->next;
+		}
+	}
+}
+
 struct track_info **cache_get_tis(int sort, int *count, int (*is_filtered)(struct track_info *))
 {
 	struct track_info **tis;
