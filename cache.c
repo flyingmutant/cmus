@@ -75,7 +75,7 @@ STATIC_ASSERT(CACHE_ENTRY_TOTAL_SIZE == offsetof(struct cache_entry, strings));
 
 
 #define ALIGN(size) (((size) + sizeof(long) - 1) & ~(sizeof(long) - 1))
-#define HASH_SIZE 1023
+#define HASH_SIZE 32749
 
 static struct track_info *hash_table[HASH_SIZE];
 static char *cache_filename;
