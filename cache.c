@@ -425,7 +425,7 @@ static struct track_info *ip_get_ti(const char *filename)
 	return ti;
 }
 
-struct track_info *cache_get_ti(const char *filename, int force)
+struct track_info *cache_fetch_ti(const char *filename, int force)
 {
 	unsigned int hash = hash_str(filename);
 	struct track_info *ti;

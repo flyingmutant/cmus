@@ -89,7 +89,7 @@ static void add_file(const char *filename, int force)
 #endif
 
 	cache_lock();
-	ti = cache_get_ti(filename, force);
+	ti = cache_fetch_ti(filename, force);
 	cache_unlock();
 
 	if (ti)

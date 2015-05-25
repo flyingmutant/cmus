@@ -1691,7 +1691,7 @@ void resume_load(void)
 		set_view(resume.view);
 	if (resume.lib_filename) {
 		cache_lock();
-		ti = old = cache_get_ti(resume.lib_filename, 0);
+		ti = old = cache_fetch_ti(resume.lib_filename, 0);
 		cache_unlock();
 		if (ti) {
 			editable_lock();
@@ -1712,7 +1712,7 @@ void resume_load(void)
 	}
 	if (resume.filename) {
 		cache_lock();
-		ti = cache_get_ti(resume.filename, 0);
+		ti = cache_fetch_ti(resume.filename, 0);
 		cache_unlock();
 		if (ti) {
 			player_set_file(ti);

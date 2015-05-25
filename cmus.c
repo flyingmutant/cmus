@@ -110,7 +110,7 @@ void cmus_play_file(const char *filename)
 	struct track_info *ti;
 
 	cache_lock();
-	ti = cache_get_ti(filename, 0);
+	ti = cache_fetch_ti(filename, 0);
 	cache_unlock();
 	if (!ti) {
 		error_msg("Couldn't get file information for %s\n", filename);
