@@ -80,11 +80,14 @@ static void add_file(const char *filename, int force)
 
 #ifdef CONFIG_CUE
 	if (!is_cue_url(filename)) {
-		if (force || lookup_cache_entry(filename, hash_str(filename)) == NULL) {
-			int done = add_file_cue(filename);
-			if (done)
-				return;
+		int run = force;
+		if (!run) {
+			cache_lock();
+			run = !cache_has_ti(filename);
+			cache_unlock();
 		}
+		if (run && add_file_cue(filename))
+			return;
 	}
 #endif
 

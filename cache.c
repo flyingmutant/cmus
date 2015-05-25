@@ -164,7 +164,7 @@ static struct track_info *cache_entry_to_ti(struct cache_entry *e)
 	return ti;
 }
 
-struct track_info *lookup_cache_entry(const char *filename, unsigned int hash)
+static struct track_info *lookup_cache_entry(const char *filename, unsigned int hash)
 {
 	struct track_info *ti = hash_table[hash % HASH_SIZE];
 
@@ -174,6 +174,11 @@ struct track_info *lookup_cache_entry(const char *filename, unsigned int hash)
 		ti = ti->next;
 	}
 	return NULL;
+}
+
+int cache_has_ti(const char *filename)
+{
+	return lookup_cache_entry(filename, hash_str(filename)) != NULL;
 }
 
 static void do_cache_remove_ti(struct track_info *ti, unsigned int hash)
