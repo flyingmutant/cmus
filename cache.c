@@ -181,7 +181,7 @@ int cache_has_ti(const char *filename)
 	return lookup_cache_entry(filename, hash_str(filename)) != NULL;
 }
 
-static void do_cache_remove_ti(struct track_info *ti, unsigned int hash)
+static void do_cache_remove_ti____no(struct track_info *ti, unsigned int hash)
 {
 	unsigned int pos = hash % HASH_SIZE;
 	struct track_info *t = hash_table[pos];
@@ -196,7 +196,6 @@ static void do_cache_remove_ti(struct track_info *ti, unsigned int hash)
 				hash_table[pos] = next;
 			}
 			total--;
-			track_info_unref(ti);
 			return;
 		}
 		prev = t;
@@ -482,7 +481,6 @@ struct track_info *cache_fetch_ti(const char *filename, int force)
 			return NULL;
 		add_ti(ti, hash);
 	}
-	track_info_ref(ti);
 	return ti;
 }
 
@@ -516,7 +514,6 @@ struct track_info **cache_refresh(int *count, int force)
 		}
 
 		hash = hash_str(ti->filename);
-		track_info_ref(ti);
 		do_cache_remove_ti(ti, hash);
 
 		if (!rc) {
@@ -525,7 +522,6 @@ struct track_info **cache_refresh(int *count, int force)
 
 			// clear cache-only entries
 			if (force && ti->ref == 1) {
-				track_info_unref(ti);
 				tis[i] = NULL;
 				continue;
 			}
@@ -535,10 +531,8 @@ struct track_info **cache_refresh(int *count, int force)
 				add_ti(new_ti, hash);
 
 				if (ti->ref == 1) {
-					track_info_unref(ti);
 					tis[i] = NULL;
 				} else {
-					track_info_ref(new_ti);
 					ti->next = new_ti;
 				}
 				continue;
@@ -548,7 +542,6 @@ struct track_info **cache_refresh(int *count, int force)
 
 		// deleted
 		if (ti->ref == 1) {
-			track_info_unref(ti);
 			tis[i] = NULL;
 		} else {
 			ti->next = NULL;

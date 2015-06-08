@@ -39,7 +39,6 @@ char *lib_live_filter = NULL;
 
 struct rb_root lib_shuffle_root;
 static struct expr *filter = NULL;
-static int remove_from_hash = 1;
 
 static struct expr *live_filter_expr = NULL;
 static struct track_info *cur_track_ti = NULL;
@@ -82,68 +81,9 @@ static void views_add_track(struct track_info *ti)
 	/* NOTE: does not ref ti */
 	simple_track_init((struct simple_track *)track, ti);
 
-	/* both the hash table and views have refs */
-	track_info_ref(ti);
-
 	tree_add_track(track);
 	shuffle_add(track);
 	editable_add(&lib_editable, (struct simple_track *)track);
-}
-
-struct fh_entry {
-	struct fh_entry *next;
-
-	/* ref count is increased when added to this hash */
-	struct track_info *ti;
-};
-
-#define FH_SIZE (1024)
-static struct fh_entry *ti_hash[FH_SIZE] = { NULL, };
-
-static int hash_insert(struct track_info *ti)
-{
-	const char *filename = ti->filename;
-	unsigned int pos = hash_str(filename) % FH_SIZE;
-	struct fh_entry **entryp;
-	struct fh_entry *e;
-
-	entryp = &ti_hash[pos];
-	e = *entryp;
-	while (e) {
-		if (strcmp(e->ti->filename, filename) == 0) {
-			/* found, don't insert */
-			return 0;
-		}
-		e = e->next;
-	}
-
-	e = xnew(struct fh_entry, 1);
-	track_info_ref(ti);
-	e->ti = ti;
-	e->next = *entryp;
-	*entryp = e;
-	return 1;
-}
-
-static void hash_remove(struct track_info *ti)
-{
-	const char *filename = ti->filename;
-	unsigned int pos = hash_str(filename) % FH_SIZE;
-	struct fh_entry **entryp;
-
-	entryp = &ti_hash[pos];
-	while (1) {
-		struct fh_entry *e = *entryp;
-
-		BUG_ON(e == NULL);
-		if (strcmp(e->ti->filename, filename) == 0) {
-			*entryp = e->next;
-			track_info_unref(e->ti);
-			free(e);
-			break;
-		}
-		entryp = &e->next;
-	}
 }
 
 static int is_filtered(struct track_info *ti)
@@ -311,13 +251,9 @@ static void free_lib_track(struct list_head *item)
 	if (track == lib_cur_track)
 		lib_cur_track = NULL;
 
-	if (remove_from_hash)
-		hash_remove(ti);
-
 	rb_erase(&track->shuffle_track.tree_node, &lib_shuffle_root);
 	tree_remove(track);
 
-	track_info_unref(ti);
 	free(track);
 }
 
@@ -335,7 +271,6 @@ struct track_info *lib_set_track(struct tree_track *track)
 	if (track) {
 		lib_cur_track = track;
 		ti = tree_track_info(track);
-		track_info_ref(ti);
 		if (follow) {
 			tree_sel_current(auto_expand_albums_follow);
 			sorted_sel_current();
@@ -422,10 +357,7 @@ struct tree_track *lib_find_track(struct track_info *ti)
 
 void lib_store_cur_track(struct track_info *ti)
 {
-	if (cur_track_ti)
-		track_info_unref(cur_track_ti);
 	cur_track_ti = ti;
-	track_info_ref(cur_track_ti);
 }
 
 struct track_info *lib_get_cur_stored_track(void)
@@ -456,7 +388,6 @@ static void do_lib_filter(int clear_before)
 	if (clear_before)
 		d_print("filter results could grow, clear tracks and re-add (slow)\n");
 
-	remove_from_hash = 0;
 	if (clear_before) {
 		editable_clear(&lib_editable);
 
@@ -465,7 +396,6 @@ static void do_lib_filter(int clear_before)
 		cache_unlock();
 	} else
 		editable_remove_matching_tracks(&lib_editable, is_filtered_cb, NULL);
-	remove_from_hash = 1;
 
 	window_changed(lib_editable.win);
 	window_goto_top(lib_editable.win);
@@ -526,7 +456,6 @@ static void store_sel_track(void)
 	struct tree_track *tt = get_sel_track();
 	if (tt) {
 		sel_track_ti = tree_track_info(tt);
-		track_info_ref(sel_track_ti);
 	}
 }
 
@@ -536,7 +465,6 @@ static void restore_sel_track(void)
 		struct tree_track *tt = lib_find_track(sel_track_ti);
 		if (tt) {
 			set_sel_track(tt);
-			track_info_unref(sel_track_ti);
 			sel_track_ti = NULL;
 		}
 	}
@@ -593,7 +521,7 @@ void lib_set_live_filter(const char *str)
 		restore_sel_track();
 }
 
-int lib_remove(struct track_info *ti)
+int lib_remove____no(struct track_info *ti)
 {
 	struct simple_track *track;
 
@@ -604,24 +532,6 @@ int lib_remove(struct track_info *ti)
 		}
 	}
 	return 0;
-}
-
-void lib_clear_store(void)
-{
-	int i;
-
-	for (i = 0; i < FH_SIZE; i++) {
-		struct fh_entry *e, *next;
-
-		e = ti_hash[i];
-		while (e) {
-			next = e->next;
-			track_info_unref(e->ti);
-			free(e);
-			e = next;
-		}
-		ti_hash[i] = NULL;
-	}
 }
 
 void sorted_sel_current(void)

@@ -390,8 +390,6 @@ void editable_update_track(struct editable *e, struct track_info *old, struct tr
 		struct simple_track *track = to_simple_track(item);
 		if (track->info == old) {
 			if (new) {
-				track_info_unref(old);
-				track_info_ref(new);
 				track->info = new;
 			} else {
 				editable_remove_track(e, track);

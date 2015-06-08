@@ -252,7 +252,6 @@ static int update_cb(void *data, struct track_info *ti)
 		d->size *= 2;
 		d->ti = xrealloc(d->ti, d->size * sizeof(struct track_info *));
 	}
-	track_info_ref(ti);
 	d->ti[d->used++] = ti;
 	return 0;
 }

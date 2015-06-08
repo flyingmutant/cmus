@@ -33,7 +33,6 @@ struct track_info {
 	long bitrate;
 	char *codec;
 	char *codec_profile;
-	int ref;
 	char *filename;
 
 	int tracknumber;
@@ -119,12 +118,9 @@ typedef size_t sort_key_t;
 #define TI_MATCH_ALBUMARTIST  (1 << 3)
 #define TI_MATCH_ALL          (~0)
 
-/* initializes only filename and ref */
+/* initializes only filename */
 struct track_info *track_info_new(const char *filename);
 void track_info_set_comments(struct track_info *ti, struct keyval *comments);
-
-void track_info_ref(struct track_info *ti);
-void track_info_unref(struct track_info *ti);
 
 /*
  * returns: 1 if @ti has any of the following tags: artist, album, title

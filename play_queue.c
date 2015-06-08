@@ -27,7 +27,6 @@ static void pq_free_track(struct list_head *item)
 {
 	struct simple_track *track = to_simple_track(item);
 
-	track_info_unref(track->info);
 	free(track);
 }
 
@@ -57,7 +56,6 @@ struct track_info *play_queue_remove(void)
 	if (!list_empty(&pq_editable.head)) {
 		struct simple_track *t = to_simple_track(pq_editable.head.next);
 		info = t->info;
-		track_info_ref(info);
 		editable_remove_track(&pq_editable, t);
 	}
 

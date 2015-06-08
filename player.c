@@ -404,9 +404,6 @@ static inline int get_next(struct track_info **ti)
 
 static inline void _file_changed(struct track_info *ti)
 {
-	if (player_info.ti)
-		track_info_unref(player_info.ti);
-
 	player_info.ti = ti;
 	update_rg_scale();
 	player_info.metadata[0] = 0;
@@ -639,7 +636,6 @@ static void _producer_play(void)
 			if (rc) {
 				player_ip_error(rc, "opening file `%s'", ti->filename);
 				ip_delete(ip);
-				track_info_unref(ti);
 				file_changed(NULL);
 			} else {
 				ip_setup(ip);
@@ -828,7 +824,6 @@ static void _consumer_handle_eof(void)
 			_producer_play();
 			if (producer_status == PS_UNLOADED) {
 				_consumer_stop();
-				track_info_unref(ti);
 				file_changed(NULL);
 			} else {
 				/* PS_PLAYING */

@@ -72,10 +72,6 @@ void view_clear(int view)
 		worker_remove_jobs(JOB_TYPE_LIB);
 		editable_lock();
 		editable_clear(&lib_editable);
-
-		/* FIXME: make this optional? */
-		lib_clear_store();
-
 		editable_unlock();
 		break;
 	case PLAYLIST_VIEW:
@@ -999,7 +995,6 @@ static int add_ti(void *data, struct track_info *ti)
 		sel->tis_alloc = sel->tis_alloc ? sel->tis_alloc * 2 : 8;
 		sel->tis = xrenew(struct track_info *, sel->tis, sel->tis_alloc);
 	}
-	track_info_ref(ti);
 	sel->tis[sel->tis_nr++] = ti;
 	return 0;
 }
@@ -1106,8 +1101,6 @@ static void cmd_run(char *arg)
 	}
 	free_str_array(av);
 	free(argv);
-	for (i = 0; sel.tis[i]; i++)
-		track_info_unref(sel.tis[i]);
 	free(sel.tis);
 }
 
@@ -1123,7 +1116,6 @@ static int get_one_ti(void *data, struct track_info *ti)
 {
 	struct track_info **sel_ti = data;
 
-	track_info_ref(ti);
 	*sel_ti = ti;
 	/* stop the for each loop, we need only the first selected track */
 	return 1;
@@ -1180,7 +1172,6 @@ static void cmd_echo(char *arg)
 		return;
 
 	info_msg("%s%s%s", arg, sel_ti->filename, ptr);
-	track_info_unref(sel_ti);
 }
 
 #define VF_RELATIVE	0x01

@@ -57,7 +57,6 @@ static void flush_ti_buffer(void)
 	editable_lock();
 	for (i = 0; i < ti_buffer_fill; i++) {
 		jd->add(ti_buffer[i]);
-		track_info_unref(ti_buffer[i]);
 	}
 	editable_unlock();
 	ti_buffer_fill = 0;
@@ -357,7 +356,6 @@ void do_update_job(void *data)
 				cmus_add(lib_add_track, ti->filename, FILE_TYPE_FILE, JOB_TYPE_LIB, force);
 			}
 		}
-		track_info_unref(ti);
 	}
 }
 
@@ -392,13 +390,8 @@ void do_update_cache_job(void *data)
 		editable_update_track(&pl_editable, old, new);
 		editable_update_track(&pq_editable, old, new);
 		if (player_info.ti == old && new) {
-			track_info_ref(new);
 			player_file_changed(new);
 		}
-
-		track_info_unref(old);
-		if (new)
-			track_info_unref(new);
 	}
 	player_info_unlock();
 	editable_unlock();

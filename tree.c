@@ -633,7 +633,6 @@ struct track_info *tree_activate_selected(void)
 	lib_track_win->changed = 1;
 
 	info = tree_track_info(lib_cur_track);
-	track_info_ref(info);
 	return info;
 }
 

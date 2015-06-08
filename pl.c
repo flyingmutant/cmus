@@ -34,7 +34,6 @@ static void pl_free_track(struct list_head *item)
 		pl_cur_track = NULL;
 
 	rb_erase(&shuffle_track->tree_node, &pl_shuffle_root);
-	track_info_unref(track->info);
 	free(track);
 }
 
@@ -55,7 +54,6 @@ static struct track_info *set_track(struct simple_track *track)
 	if (track) {
 		pl_cur_track = track;
 		ti = track->info;
-		track_info_ref(ti);
 		if (follow)
 			pl_sel_current();
 		pl_editable.win->changed = 1;
@@ -120,7 +118,6 @@ void pl_add_track(struct track_info *ti)
 {
 	struct shuffle_track *track = xnew(struct shuffle_track, 1);
 
-	track_info_ref(ti);
 	simple_track_init((struct simple_track *)track, ti);
 	shuffle_list_add(track, &pl_shuffle_root);
 	editable_add(&pl_editable, (struct simple_track *)track);

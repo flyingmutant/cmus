@@ -38,7 +38,6 @@ struct simple_track *simple_track_new(struct track_info *ti)
 {
 	struct simple_track *t = xnew(struct simple_track, 1);
 
-	track_info_ref(ti);
 	simple_track_init(t, ti);
 	return t;
 }
