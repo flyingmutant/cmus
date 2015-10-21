@@ -424,7 +424,7 @@ try_compile()
 		__obj=`tmp_file prog.o`
 		echo "$1" > $__src || exit 1
 		shift
-		__cmd="$CC -c $CFLAGS $@ $__src -o $__obj"
+		__cmd="$CC -c $CFLAGS $EXTRA_CFLAGS $@ $__src -o $__obj"
 		$CC -c $CFLAGS "$@" $__src -o $__obj 2>/dev/null
 		;;
 	cxx)
@@ -432,7 +432,7 @@ try_compile()
 		__obj=`tmp_file prog.o`
 		echo "$1" > $__src || exit 1
 		shift
-		__cmd="$CXX -c $CXXFLAGS $@ $__src -o $__obj"
+		__cmd="$CXX -c $CXXFLAGS $EXTRA_CXXFLAGS $@ $__src -o $__obj"
 		$CXX -c $CXXFLAGS "$@" $__src -o $__obj 2>/dev/null
 		;;
 	esac
@@ -450,7 +450,7 @@ try_compile_link()
 		__exe=`tmp_file prog`
 		echo "$1" > $__src || exit 1
 		shift
-		__cmd="$CC $__src -o $__exe $CFLAGS $LDFLAGS $@"
+		__cmd="$CC $__src -o $__exe $CFLAGS $EXTRA_CFLAGS $LDFLAGS $@"
 		$CC $__src -o $__exe $CFLAGS $LDFLAGS "$@" 2>/dev/null
 		;;
 	cxx)
@@ -458,7 +458,7 @@ try_compile_link()
 		__exe=`tmp_file prog`
 		echo "$1" > $__src || exit 1
 		shift
-		__cmd="$CXX $__src -o $__exe $CXXFLAGS $CXXLDFLAGS $@"
+		__cmd="$CXX $__src -o $__exe $CXXFLAGS $EXTRA_CXXFLAGS $CXXLDFLAGS $@"
 		$CXX $__src -o $__exe $CXXFLAGS $CXXLDFLAGS "$@" 2>/dev/null
 		;;
 	esac
